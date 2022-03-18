@@ -54,7 +54,7 @@ public final class PortalTrapFix extends JavaPlugin implements Listener {
                     Bukkit.getScheduler().runTask(this, () -> player.teleport(entry.getValue().getValue1()));
                 }
             }
-        }, 0, 20);
+        }, 0, 10);
         Bukkit.getPluginManager().registerEvents(this, this);
     }
 
