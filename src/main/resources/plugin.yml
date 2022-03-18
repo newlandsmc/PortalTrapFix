@@ -1,0 +1,4 @@
+name: PortalTrapFix
+version: '${project.version}'
+main: com.semivanilla.portaltrapfix.PortalTrapFix
+api-version: 1.18
