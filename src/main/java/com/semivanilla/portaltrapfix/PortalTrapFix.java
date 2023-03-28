@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,7 +30,7 @@ public final class PortalTrapFix extends JavaPlugin implements Listener {
                 if (System.currentTimeMillis() >= entry.getValue()) {
                     it.remove();
                     Player player = Bukkit.getPlayer(entry.getKey());
-                    if (player != null) {
+                    if (player != null && isInPortal(player)) {
                         player.sendMessage(ChatColor.RED + "Are you stuck? Sending you back in 5 seconds...");
                     }
                 }
@@ -56,6 +57,9 @@ public final class PortalTrapFix extends JavaPlugin implements Listener {
             }
         }, 0, 10);
         Bukkit.getPluginManager().registerEvents(this, this);
+        if (System.getProperty("portaltrapfix.listenMove", "true").equalsIgnoreCase("true")) {
+            Bukkit.getPluginManager().registerEvents(new MoveListener(), this);
+        }
     }
 
     public boolean isInPortal(Player player) {
@@ -70,5 +74,17 @@ public final class PortalTrapFix extends JavaPlugin implements Listener {
         UUID uuid = event.getPlayer().getUniqueId();
         inPortal.put(uuid, new Triplet<>(System.currentTimeMillis() + 10000L, event.getFrom(), event.getTo()));
         sendMessage.put(uuid, System.currentTimeMillis() + 5000L);
+    }
+    public class MoveListener implements Listener {
+
+        @EventHandler
+        public void onMove(PlayerMoveEvent event) {
+            UUID uuid = event.getPlayer().getUniqueId();
+            if (inPortal.containsKey(uuid) && !isInPortal(event.getPlayer())) {
+                inPortal.remove(uuid);
+                sendMessage.remove(uuid);
+            }
+        }
+
     }
 }
